@@ -46,7 +46,7 @@ reg [7:0] count;
 
 // Sequential logic
     always @(posedge clk or negedge reset) begin
-    if (reset)
+        if (!reset)
         count <= 8'b00000000;
         else if (load)
         count <= data_in;
