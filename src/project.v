@@ -16,12 +16,46 @@ module tt_um_example (
     input  wire       rst_n     // reset_n - low to reset
 );
 
-  // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
-  assign uio_out = 0;
-  assign uio_oe  = 0;
+    wire oe = ui_in[1];
 
-  // List all unused inputs to prevent warnings
-  wire _unused = &{ena, clk, rst_n, 1'b0};
+    prog_counter counter_inst (
+        .clk (clk),
+        .reset (rst_n),
+        .load (ui_in[0]),
+        .data_in (uio_in),
+        .data_out (uo_out)
+    );
+
+    assign uio_out = uo_out;
+    assign uio_oe = {8{oe}};
+
+    // List all unused inputs to prevent warnings
+    wire _unused = &{ena, ui_in[7:2], 1'b0};
+
+endmodule
+
+module prog_counter (
+    input wire clk,
+    input wire reset,        // async reset
+    input wire load,         // sync load
+    input wire enable,       // count enable
+    input wire [7:0] data_in,
+    output wire [7:0] data_out
+);
+
+reg [7:0] count;
+
+// Sequential logic
+    always @(posedge clk or negedge reset) begin
+    if (reset)
+        count <= 8'b00000000;
+    else if (load)
+        count <= data_in;
+    else if (enable)
+        count <= count + 1;
+end
+
+// Tri-state output
+assign data_out = count;
 
 endmodule
