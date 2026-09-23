@@ -38,7 +38,6 @@ module prog_counter (
     input wire clk,
     input wire reset,        // async reset
     input wire load,         // sync load
-    input wire enable,       // count enable
     input wire [7:0] data_in,
     output wire [7:0] data_out
 );
@@ -49,9 +48,9 @@ reg [7:0] count;
     always @(posedge clk or negedge reset) begin
     if (reset)
         count <= 8'b00000000;
-    else if (load)
+        else if (load)
         count <= data_in;
-    else if (enable)
+    else 
         count <= count + 1;
 end
 
